@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3333/user";
+const BASE_URL = "https://ptwnc-hw-3.vercel.app";
 
 export interface RegisterData {
   email: string;
