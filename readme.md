@@ -1,2 +1,2 @@
-- Frontend: [https://userapp-frontend.vercel.app](https://userapp-frontend.vercel.app)
-- Backend: [https://user-registration-backend.onrender.com](https://user-registration-backend.onrender.com)
+- Frontend: https://ptwnc-hw-3.vercel.app/
+- Backend: https://ptwnc-hw3.onrender.com
