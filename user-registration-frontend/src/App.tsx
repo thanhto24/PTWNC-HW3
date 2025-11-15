@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import NavBarComponent from "./components/Navbar";
+import NavBarComponent from "./components/NavBarComponent";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
