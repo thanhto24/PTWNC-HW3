@@ -1,22 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { registerUser, type RegisterData } from "../api/userApi";
+import { registerUser, type AuthData } from "../api/userApi";
 import { useState } from "react";
+import type { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
-    const { register, handleSubmit, formState: { errors } } = useForm<RegisterData>();
+    const { register, handleSubmit, formState: { errors } } = useForm<AuthData>();
     const [message, setMessage] = useState("");
+    const navigate = useNavigate();
 
-    const mutation = useMutation({
+    const mutation = useMutation<
+        any, // dữ liệu trả về từ registerUser (tuỳ backend)
+        AxiosError<{ message: string }>, // error type
+        AuthData // variables type
+    >({
         mutationFn: registerUser,
-        onSuccess: () => setMessage("✅ Đăng ký thành công!"),
-        onError: (error: any) => {
+        onSuccess: () => {
+            setMessage("✅ Đăng ký thành công! Vui lòng đăng nhập.");
+            setTimeout(() => navigate("/", { replace: true }), 1500);
+        },
+        onError: (error) => {
             setMessage("❌ " + (error.response?.data?.message || "Lỗi không xác định"));
         },
     });
 
-    const onSubmit = (data: RegisterData) => {
+    const onSubmit = (data: AuthData) => {
         setMessage("");
         mutation.mutate(data);
     };
@@ -24,6 +34,7 @@ export default function Signup() {
     return (
         <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 mt-10">
             <h2 className="text-2xl font-semibold text-center mb-4">Sign Up</h2>
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
                     <label className="block mb-1 font-medium">Email</label>
@@ -52,7 +63,6 @@ export default function Signup() {
                 >
                     {mutation.isPending ? "Đang đăng ký..." : "Đăng ký"}
                 </button>
-
             </form>
 
             {message && <p className="mt-4 text-center text-gray-700">{message}</p>}

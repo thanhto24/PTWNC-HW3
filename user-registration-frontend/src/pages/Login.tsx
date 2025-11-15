@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { loginUser, type RegisterData } from "../api/userApi";
+import { loginUser, type AuthData } from "../api/userApi";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { AxiosError } from "axios";
 
 export default function Login() {
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterData>();
+  const { register, handleSubmit, formState: { errors } } = useForm<AuthData>();
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
@@ -14,15 +14,21 @@ export default function Login() {
     mutationFn: loginUser,
     onSuccess: (data) => {
       setMessage("✅ Đăng nhập thành công!");
-      localStorage.setItem("user", JSON.stringify(data.user)); // lưu user vào localStorage
-      setTimeout(() => navigate("/"), 1500);
+
+      // lưu user và token
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("refreshToken", data.refreshToken);
+
+      // Redirect sau 1.5s
+      setTimeout(() => navigate("/", { replace: true }), 1500);
     },
-    onError: (error: any) => {
-      setMessage("❌ " + (error.response?.data?.message || "Lỗi không xác định"));
+    onError: (error: unknown) => {
+      const err = error as AxiosError<{ message: string }>;
+      setMessage("❌ " + (err.response?.data?.message || "Lỗi không xác định"));
     },
   });
 
-  const onSubmit = (data: RegisterData) => {
+  const onSubmit = (data: AuthData) => {
     setMessage("");
     mutation.mutate(data);
   };
@@ -30,6 +36,7 @@ export default function Login() {
   return (
     <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 mt-10">
       <h2 className="text-2xl font-semibold text-center mb-4">Login</h2>
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block mb-1 font-medium">Email</label>

@@ -1,18 +1,50 @@
-import axios from "axios";
+import { api, setAccessToken } from "./axiosInstance";
 
-const BASE_URL = "https://ptwnc-hw3.onrender.com";
-
-export interface RegisterData {
+export interface AuthData {
   email: string;
   password: string;
 }
 
-export const registerUser = async (data: RegisterData) => {
-  const res = await axios.post(`${BASE_URL}/user/register`, data);
+// =========================
+// REGISTER
+// =========================
+export const registerUser = async (data: AuthData) => {
+  const res = await api.post("/user/register", data);
   return res.data;
 };
 
-export const loginUser = async (data: RegisterData) => {
-  const res = await axios.post(`${BASE_URL}/user/login`, data);
+// =========================
+// LOGIN → lưu token
+// =========================
+export const loginUser = async (data: AuthData) => {
+  const res = await api.post("/user/login", data);
+
+  // lưu access token vào memory (React sẽ giữ until refresh page)
+  setAccessToken(res.data.accessToken);
+
+  // lưu refresh token vào localStorage (persist)
+  localStorage.setItem("refreshToken", res.data.refreshToken);
+
+  return res.data;
+};
+
+// =========================
+// LOGOUT
+// =========================
+export const logoutUser = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (refreshToken) {
+    await api.post("/user/logout");
+  }
+
+  localStorage.removeItem("refreshToken");
+  setAccessToken(null);
+};
+
+// =========================
+// Protected Route Example
+// =========================
+export const getMe = async () => {
+  const res = await api.get("/user/me");
   return res.data;
 };
